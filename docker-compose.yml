@@ -1,0 +1,43 @@
+version: "3.7"
+
+services:
+  mysql:
+    container_name: mysql
+    user: "1000:50" # Specifies the UID and GID for the running service
+    restart: always # Policy for restarting the container upon exit
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
+    command: "--innodb-use-native-aio=0 --innodb-fast-shutdown=0"
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - ${MYSQL_DATA}:/var/lib/mysql
+      - ./mysql/run.sh:/stack/localdb/run.sh:rw
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    networks:
+      - liquibase-network
+
+  liquibase:
+    container_name: liquibase
+    build:
+      context: ./liquibase
+      dockerfile: Dockerfile
+    environment:
+      LIQUIBASE_PROJECT_DIR: ${LIQUIBASE_PROJECT_DIR}
+      LIQUIBASE_DATABASE_DRIVER: ${LIQUIBASE_DATABASE_DRIVER}
+      LIQUIBASE_DATABASE_URL: jdbc:mysql://${LIQUIBASE_DATABASE_HOST}:3306/${MYSQL_DATABASE}
+      LIQUIBASE_DATABASE_USERNAME: ${MYSQL_USER}
+      LIQUIBASE_DATABASE_PASSWORD: ${MYSQL_PASSWORD}
+    depends_on:
+      - mysql
+    networks:
+      - liquibase-network
+
+networks:
+  liquibase-network:
+    driver: bridge

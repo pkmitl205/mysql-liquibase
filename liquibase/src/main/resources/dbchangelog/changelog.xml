@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="create_personTable" labels="Create Person Table" dbms="mysql"
+        author="pkmitl205" runAlways="true" runOnChange="true">
+        <sqlFile path="src/main/resources/dbscripts/table/create_personTable.sql"
+            stripComments="true" splitStatements="true" />
+    </changeSet>
+
+    <changeSet id="drop_personTable" labels="Drop Person Table" dbms="mysql"
+        author="pkmitl205" runAlways="true" runOnChange="true">
+        <dropTable tableName="person" />
+        <rollback>
+            <sqlFile path="src/main/resources/dbscripts/table/create_personTable.sql"
+                stripComments="true" splitStatements="true" />
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
